@@ -180,12 +180,4 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ---
 
-## 👤 Author
-
-**Yuraj Chauhan**  
-B.Sc. IT Student | IoT & Full-Stack Developer  
-[![GitHub](https://img.shields.io/badge/GitHub-Yuraj023-black?logo=github)](https://github.com/Yuraj023)
-
----
-
 > _"Turning raw sensor data into actionable environmental insights."_
