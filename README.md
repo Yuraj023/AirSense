@@ -1,10 +1,10 @@
-# 🌬️ AirSense — Smart Air Quality Monitoring System
+#  AirSense — Smart Air Quality Monitoring System
 
 > A real-time, IoT-based air quality monitoring and alert system built with ESP32 and cloud integration.
 
 ---
 
-## 📖 Overview
+##  Overview
 
 Air pollution is a growing concern, especially in urban environments. **AirSense** is a compact, low-cost IoT solution that monitors harmful gases, particulate matter, temperature, and humidity in real time — and automatically sends alerts when air quality drops below safe thresholds.
 
@@ -12,25 +12,25 @@ This project bridges the physical and digital worlds: sensor data collected from
 
 ---
 
-## 🖥️ Live Dashboard
+##  Live Dashboard
 
 > _Dashboard screenshot or GIF here_
 
 ---
 
-## ⚙️ Features
+##  Features
 
 | Feature | Description |
 |---|---|
-| 🌡️ Real-time Monitoring | Tracks gases, temperature, humidity, and PM2.5 continuously |
-| 🚨 Threshold Alerts | Sends instant email notifications when air quality is unsafe |
-| ☁️ Cloud Integration | Streams live sensor data to a cloud platform |
-| 📊 Live Dashboard | Visualizes all environmental data in real time |
-| 🔋 Energy Efficient | Battery-powered with step-down voltage regulation |
+|  Real-time Monitoring | Tracks gases, temperature, humidity, and PM2.5 continuously |
+|  Threshold Alerts | Sends instant email notifications when air quality is unsafe |
+|  Cloud Integration | Streams live sensor data to a cloud platform |
+|  Live Dashboard | Visualizes all environmental data in real time |
+|  Energy Efficient | Battery-powered with step-down voltage regulation |
 
 ---
 
-## 🧠 Tech Stack
+##  Tech Stack
 
 ### Hardware
 | Component | Purpose |
@@ -49,7 +49,7 @@ This project bridges the physical and digital worlds: sensor data collected from
 
 ---
 
-## 🗂️ Project Structure
+##  Project Structure
 
 ```
 airsense-dashboard/
@@ -63,7 +63,7 @@ airsense-dashboard/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js v18+
@@ -130,7 +130,7 @@ npm start
 
 ---
 
-## 📊 Monitored Parameters
+##  Monitored Parameters
 
 | Parameter | Sensor | Safe Range |
 |---|---|---|
@@ -141,7 +141,7 @@ npm start
 
 ---
 
-## 🔮 Roadmap
+##  Roadmap
 
 - [x] Real-time sensor data streaming
 - [x] Email alert system
@@ -153,7 +153,7 @@ npm start
 
 ---
 
-## 💡 What I Learned
+##  What I Learned
 
 - Integrating hardware sensors with cloud platforms end-to-end
 - Handling and processing real-time IoT data streams
@@ -162,7 +162,7 @@ npm start
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Feel free to open an issue or submit a pull request.
 
@@ -171,12 +171,6 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 3. Commit your changes (`git commit -m 'Add your feature'`)
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
