@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirSense Dashboard</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="global.css">
+    <style>
+        /* Additional styles specific to this page */
+        body {
+            padding-top: 4rem; /* Account for fixed navbar */
+        }
+        
+        /* Background video */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+        
+        /* Background overlay for better text readability */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85); /* Dark blue overlay with transparency */
+            z-index: -1;
+        }
+        
+        /* ==== NAVBAR ==== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: #4fd1c5;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .nav-links a.active {
+            color: #4fd1c5;
+            font-weight: 700;
+        }
+
+        /* ==== LOGOUT BUTTON ==== */
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* ==== HAMBURGER ==== */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 4px 0;
+            transition: all 0.3s;
+        }
+
+        /* ==== MOBILE MENU OVERLAY ==== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 100;
+        }
+
+        .overlay.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .overlay a {
+            font-size: 2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .overlay a:hover {
+            color: #4fd1c5;
+        }
+
+        .overlay a.active {
+            color: #4fd1c5;
+            font-weight: 700;
+        }
+
+        /* ==== RESPONSIVE ==== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .user-info {
+                display: none !important;
+            }
+
+            .mobile-logout-btn {
+                display: flex !important;
+                background: rgba(239, 68, 68, 0.2);
+                color: white;
+                border: 1px solid rgba(239, 68, 68, 0.5);
+                padding: 0.8rem 2rem;
+                border-radius: 8px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                align-items: center;
+                gap: 0.8rem;
+                justify-content: center;
+                text-decoration: none;
+            }
+
+            .mobile-logout-btn:hover {
+                background: rgba(239, 68, 68, 0.4);
+                border-color: rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        /* ==== ANIMATED HAMBURGER ==== */
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* Sensor Cards */
+        .sensor-card {
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sensor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .sensor-card:hover::before {
+            left: 100%;
+        }
+        
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px -10px rgba(79, 209, 197, 0.3);
+        }
+        
+        .sensor-card:active {
+            transform: translateY(-2px);
+        }
+        
+        .pm25-card .card-header i {
+            color: hsl(210 85% 65%);
+        }
+        
+        .voc-card .card-header i {
+            color: hsl(280 75% 65%);
+        }
+        
+        .temp-card .card-header i {
+            color: hsl(25 90% 60%);
+        }
+        
+        .humidity-card .card-header i {
+            color: hsl(190 70% 55%);
+        }
+        
+        /* AQI Gauge */
+        .aqi-gauge {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+        
+        .gauge-bg {
+            fill: none;
+            stroke: hsl(var(--border));
+            stroke-width: 10;
+        }
+        
+        .gauge-fill {
+            fill: none;
+            stroke: hsl(var(--primary));
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 1s ease;
+        }
+        
+        .gauge-text {
+            font-size: 24px;
+            font-weight: bold;
+            fill: hsl(var(--foreground));
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        
+        .gauge-label {
+            font-size: 14px;
+            fill: hsl(var(--muted-foreground));
+            text-anchor: middle;
+        }
+        
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .status-good {
+            background-color: hsl(var(--success) / 0.2);
+            color: hsl(var(--success));
+        }
+        
+        .status-moderate {
+            background-color: hsl(var(--warning) / 0.2);
+            color: hsl(var(--warning));
+        }
+        
+        .status-poor {
+            background-color: hsl(var(--destructive) / 0.2);
+            color: hsl(var(--destructive));
+        }
+        
+        /* AQI Card Styles */
+        .aqi-card-good {
+            background: linear-gradient(135deg, hsl(160 65% 55%), hsl(160 65% 45%));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 24px rgba(160, 65%, 55%, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .aqi-card-good::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .aqi-card-good:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 40px rgba(160, 65%, 55%, 0.4);
+        }
+        
+        .aqi-card-warning {
+            background: linear-gradient(135deg, hsl(48 85% 65%), hsl(48 85% 55%));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 24px rgba(48, 85%, 65%, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .aqi-card-warning::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .aqi-card-warning:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 40px rgba(48, 85%, 65%, 0.4);
+        }
+        
+        .aqi-card-unhealthy-sensitive {
+            background: linear-gradient(135deg, hsl(25 90% 60%), hsl(25 90% 50%));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 24px rgba(25, 90%, 60%, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .aqi-card-unhealthy {
+            background: linear-gradient(135deg, hsl(0 80% 65%), hsl(0 80% 55%));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 24px rgba(0, 80%, 65%, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .aqi-card-very-unhealthy {
+            background: linear-gradient(135deg, hsl(280 75% 65%), hsl(280 75% 55%));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 24px rgba(280, 75%, 65%, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .aqi-card-hazardous {
+            background: linear-gradient(135deg, hsl(350 80% 60%), hsl(350 80% 50%));
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 24px rgba(350, 80%, 60%, 0.25);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
+        .aqi-card-good:hover,
+        .aqi-card-warning:hover,
+        .aqi-card-unhealthy-sensitive:hover,
+        .aqi-card-unhealthy:hover,
+        .aqi-card-very-unhealthy:hover,
+        .aqi-card-hazardous:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Quick Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.25rem;
+                margin-bottom: 2.5rem;
+            }
+        }
+        
+        /* Card Peaceful Styles with interaction */
+        .card-peaceful {
+            background: hsl(225 40% 15% / 0.6);
+            border: 1px solid hsl(225 30% 25%);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-peaceful::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(79, 209, 197, 0.5), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .card-peaceful:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .card-peaceful:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: rgba(79, 209, 197, 0.4);
+            box-shadow: 0 8px 30px -8px rgba(79, 209, 197, 0.3);
+        }
+        
+        .card-peaceful:active {
+            transform: translateY(-2px) scale(1.01);
+        }
+        
+        @media (min-width: 1024px) {
+            .card-peaceful {
+                padding: 1.25rem;
+            }
+        }
+        
+        /* Text sizes for stats cards */
+        .stat-value {
+            font-size: 1.5rem; /* 24px */
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card-peaceful:hover .stat-value {
+            transform: scale(1.1);
+            text-shadow: 0 0 20px currentColor;
+        }
+        
+        /* Custom color classes for stat values */
+        .text-cyan-400 {
+            color: #22d3ee; /* cyan-400 equivalent */
+        }
+        
+        .text-amber-400 {
+            color: #fbbf24; /* amber-400 equivalent */
+        }
+        
+        .text-green-400 {
+            color: #4ade80; /* green-400 equivalent */
+        }
+        
+        .stat-label {
+            font-size: 0.75rem; /* 12px */
+            color: #9ca3af;
+            transition: color 0.3s ease;
+        }
+        
+        .card-peaceful:hover .stat-label {
+            color: #d1d5db;
+        }
+        
+        @media (min-width: 1024px) {
+            .stat-value {
+                font-size: 2rem; /* 32px */
+            }
+            
+            .stat-label {
+                font-size: 0.875rem; /* 14px */
+            }
+        }
+        
+        /* Alerts section */
+        .alerts-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .alerts-section {
+                margin-bottom: 2rem;
+            }
+        }
+        
+        /* Alert animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        #alerts-container .card-peaceful {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        #alerts-container button {
+            transition: all 0.3s ease;
+        }
+        
+        #alerts-container button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(79, 209, 197, 0.3);
+        }
+        
+        #alerts-container button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Alert counter - prevent layout shift */
+        .alert-counter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            white-space: nowrap;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Alerts header - prevent jumping */
+        .alerts-header {
+            position: relative;
+            will-change: auto;
+        }
+        
+        /* Alert bell icon */
+        .alert-bell {
+            will-change: color;
+            backface-visibility: hidden;
+        }
+        
+        /* Alert box */
+        .alert-box {
+            background: hsl(225 40% 12% / 0.8);
+            border: 1px solid hsl(225 30% 25%);
+            border-left: 4px solid hsl(48 85% 65%);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .alert-box {
+                padding: 1.25rem;
+            }
+        }
+        
+        /* Mobile styles for alert cards */
+        @media (max-width: 768px) {
+            #alerts-container .card-peaceful {
+                padding: 0.75rem !important;
+            }
+            
+            #alerts-container .text-xl {
+                font-size: 1rem !important;
+            }
+            
+            #alerts-container .text-lg {
+                font-size: 0.875rem !important;
+            }
+            
+            #alerts-container .text-sm {
+                font-size: 0.75rem !important;
+            }
+            
+            #alerts-container .text-xs {
+                font-size: 0.625rem !important;
+            }
+            
+            #alerts-container .gap-4 {
+                gap: 0.5rem !important;
+            }
+            
+            #alerts-container .gap-2 {
+                gap: 0.25rem !important;
+            }
+            
+            #alerts-container .mb-2 {
+                margin-bottom: 0.25rem !important;
+            }
+            
+            #alerts-container .mb-3 {
+                margin-bottom: 0.5rem !important;
+            }
+            
+            #alerts-container button {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            #alerts-container .p-12 {
+                padding: 1.5rem !important;
+            }
+            
+            #alerts-container .text-5xl {
+                font-size: 2rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #alerts-container .card-peaceful {
+                padding: 0.5rem !important;
+            }
+            
+            #alerts-container .text-xl {
+                font-size: 0.875rem !important;
+            }
+            
+            #alerts-container .text-lg {
+                font-size: 0.75rem !important;
+            }
+            
+            #alerts-container .text-sm {
+                font-size: 0.625rem !important;
+            }
+            
+            #alerts-container .text-xs {
+                font-size: 0.5rem !important;
+            }
+            
+            #alerts-container .gap-4 {
+                gap: 0.375rem !important;
+            }
+            
+            #alerts-container button {
+                padding: 0.125rem 0.375rem !important;
+                font-size: 0.625rem !important;
+            }
+            
+            #alerts-container .p-12 {
+                padding: 1rem !important;
+            }
+            
+            #alerts-container .text-5xl {
+                font-size: 1.5rem !important;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Background video -->
+    <video autoplay muted loop class="background-video">
+        <source src="cloud.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+    <!-- Background overlay for better readability -->
+    <div class="background-overlay"></div>
+    
+    <!-- ==== NAVBAR ==== -->
+    <header class="navbar">
+        <div class="logo">AirSense<span>.</span></div>
+
+        <nav class="nav-links">
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="analytics.html">Analytics</a>
+            <a href="live.html">Live</a>
+            <a href="about.html">About</a>
+            <a href="settings.html">Settings</a>
+        </nav>
+
+        <div class="user-info" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-profile" style="display: none;">
+                <div class="user-avatar" id="user-avatar"></div>
+                <span id="user-name" style="font-size: 14px; color: rgba(255,255,255,0.9);"></span>
+            </div>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- ==== MOBILE OVERLAY ==== -->
+    <div class="overlay" id="overlay">
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="analytics.html">Analytics</a>
+        <a href="live.html">Live</a>
+        <a href="about.html">About</a>
+        <a href="settings.html">Settings</a>
+        <button class="mobile-logout-btn" id="mobile-logout-btn" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen px-2 sm:px-3 py-12 sm:py-16 md:py-20 lg:py-24">
+        <div class="max-w-7xl mx-auto w-full">
+            <!-- Hero Section -->
+            <section class="mb-4 sm:mb-6 text-center">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1">
+                    Current Air Quality
+                </h1>
+                <p class="text-xs sm:text-sm text-gray-400">
+                    Real-time monitoring active
+                </p>
+            </section>
+
+            <!-- AQI Card -->
+<div class="w-full max-w-md mx-auto mb-6">
+  <div
+    class="aqi-card-good p-6 rounded-2xl shadow-lg w-full flex flex-col items-center justify-center text-center transition-all duration-300 relative overflow-hidden"
+  >
+    <!-- Animated Gradient Overlay -->
+    <div class="absolute inset-0 opacity-20 pointer-events-none" style="background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%); background-size: 200% 200%; animation: shimmer 3s infinite;"></div>
+    
+    <!-- Decorative Geometric Shapes -->
+    <div class="absolute inset-0 opacity-10 pointer-events-none">
+      <!-- Top Right Circle -->
+      <div class="absolute -top-4 -right-4 w-32 h-32 rounded-full border-4 border-white/40" style="box-shadow: inset 0 0 20px rgba(255,255,255,0.3);"></div>
+      <!-- Bottom Left Circle -->
+      <div class="absolute -bottom-6 -left-6 w-40 h-40 rounded-full bg-gradient-to-br from-white/30 to-transparent"></div>
+      <!-- Center Decorative Rings -->
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border border-white/20"></div>
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-white/10"></div>
+    </div>
+    
+    <!-- Floating Particles with Different Sizes -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute w-1 h-1 bg-white/80 rounded-full top-[15%] left-[20%] animate-pulse shadow-lg" style="animation-delay: 0s; box-shadow: 0 0 6px rgba(255,255,255,0.8);"></div>
+      <div class="absolute w-1.5 h-1.5 bg-white/60 rounded-full top-[35%] right-[15%] animate-pulse" style="animation-delay: 1s;"></div>
+      <div class="absolute w-1 h-1 bg-white/70 rounded-full bottom-[30%] left-[25%] animate-pulse" style="animation-delay: 2s;"></div>
+      <div class="absolute w-2 h-2 bg-white/40 rounded-full top-[60%] right-[30%] animate-pulse" style="animation-delay: 1.5s;"></div>
+      <div class="absolute w-1 h-1 bg-white/90 rounded-full bottom-[20%] right-[25%] animate-pulse shadow-lg" style="animation-delay: 0.5s; box-shadow: 0 0 4px rgba(255,255,255,0.9);"></div>
+    </div>
+
+    <!-- Content - Relative to be above background -->
+    <div class="relative z-10 w-full">
+      <!-- Header with Enhanced Live Badge -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center">
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center mr-2 shadow-lg"
+            style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2)); backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);"
+          >
+            <i class="fas fa-check-circle text-white text-lg drop-shadow-lg"></i>
+          </div>
+          <span class="text-white font-bold text-base tracking-wide drop-shadow-md">
+            Current AQI
+          </span>
+        </div>
+        <!-- Enhanced Live Indicator with Gradient -->
+        <div class="flex items-center gap-1 px-2 py-1 rounded-full" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15)); backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <div class="w-2 h-2 bg-white rounded-full animate-pulse shadow-lg" style="box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);"></div>
+          <span class="text-white text-xs font-semibold drop-shadow-md">LIVE</span>
+        </div>
+      </div>
+
+      <!-- AQI Number & Info with Glass Morphism Effect -->
+      <div class="text-center mb-4 relative">
+        <!-- Multi-layered Glow Effect -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+          <div class="absolute w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+        </div>
+        
+        <!-- Glass Container for AQI Value -->
+        <div class="relative inline-block px-8 py-4 rounded-2xl" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1)); backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4); min-height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+          <div class="text-5xl font-extrabold text-white mb-2 leading-none" style="text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2); min-height: 60px; display: flex; align-items: center; justify-content: center;">
+            Load..
+          </div>
+          <div class="text-xl font-semibold text-white mb-1 drop-shadow-lg tracking-wide">
+            Good
+          </div>
+          <div class="text-sm text-white/95 drop-shadow-md">
+            Checking....
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern AQI Scale with Enhanced Gradient Design -->
+      <div class="w-full rounded-xl p-3 mt-4 border shadow-inner" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1)); backdrop-filter: blur(10px); border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3);">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <span class="text-sm text-white font-bold tracking-wider drop-shadow-md">AQI SCALE</span>
+          <i class="fas fa-chart-line text-white/90 text-xs drop-shadow-md"></i>
+        </div>
+        <div class="flex justify-between text-xs text-white/90 mb-1.5 font-medium drop-shadow-sm px-1">
+          <span class="inline-block text-center min-w-[10px]">0</span>
+          <span class="inline-block text-center min-w-[12px]">50</span>
+          <span class="inline-block text-center min-w-[16px]">100</span>
+          <span class="inline-block text-center min-w-[16px]">150</span>
+          <span class="inline-block text-center min-w-[16px]">200</span>
+          <span class="inline-block text-center min-w-[20px]">300+</span>
+        </div>
+        <div class="h-1.5 rounded-full overflow-hidden shadow-inner relative mb-2" style="background: rgba(255, 255, 255, 0.2); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);">
+          <!-- Multi-color Gradient Progress Bar -->
+          <div
+            class="h-full rounded-full shadow-lg relative overflow-hidden"
+            id="aqi-progress-bar"
+            style="width: 16%; background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0.9) 100%); box-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.2);"
+          >
+            <!-- Shine effect on progress bar -->
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent" style="animation: slide 2s infinite;"></div>
+          </div>
+        </div>
+        
+        <!-- Enhanced Health Icon with Glassmorphism -->
+        <div class="flex items-center justify-center gap-1 px-2 py-1 rounded-full mx-auto" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); backdrop-filter: blur(8px); max-width: fit-content;">
+          <i class="fas fa-heart text-white text-xs drop-shadow-md"></i>
+          <span class="text-xs text-white font-medium drop-shadow-sm">Safe for all groups</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes shimmer {
+  0%, 100% { background-position: 200% 200%; }
+  50% { background-position: 0% 0%; }
+}
+
+@keyframes slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+</style>
+
+
+            <!-- Quick Stats Grid -->
+            <div class="stats-grid">
+                <!-- Temperature Card -->
+                <div class="card-peaceful text-center">
+                    <div class="stat-value text-cyan-400">33.32°C</div>
+                    <div class="stat-label">Temperature</div>
+                </div>
+                
+                <!-- Humidity Card -->
+                <div class="card-peaceful text-center">
+                    <div class="stat-value text-cyan-400">57.52%</div>
+                    <div class="stat-label">Humidity</div>
+                </div>
+                
+                <!-- PM2.5 Card -->
+                <div class="card-peaceful text-center">
+                    <div class="stat-value text-amber-400">17.83</div>
+                    <div class="stat-label">PM2.5 µg/m³</div>
+                </div>
+                
+                <!-- VOC Card -->
+                <div class="card-peaceful text-center">
+                    <div class="stat-value text-green-400">125</div>
+                    <div class="stat-label">VOC ppb</div>
+                </div>
+            </div>
+
+            <!-- Alerts & Status Section -->
+            <section class="alerts-section">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-bell text-lg text-white mr-2"></i>
+                    <h2 class="text-lg font-bold text-white">
+                        Alerts & Status
+                    </h2>
+                </div>
+                
+                <!-- Alerts Container -->
+                <div id="alerts-container">
+                    <!-- Alerts will be dynamically inserted here -->
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="env-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="sensor-data-service.js"></script>
+    <script src="user-preferences-service.js"></script>
+    <script src="email-service.js"></script>
+    <script src="weekly-report-service.js"></script>
+    <script src="config.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="adafruit-io.js"></script>
+    <script>
+        // Check authentication and initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Require authentication
+            const isAuthenticated = await authService.requireAuth();
+            if (!isAuthenticated) return;
+
+            // Get current user
+            const userResult = await authService.getCurrentUser();
+            if (userResult.success && userResult.user) {
+                console.log('✅ Logged in user:', userResult.user.email);
+                // Store user ID and email globally for sensor data storage and email alerts
+                window.currentUserId = userResult.user.id;
+                window.currentUserEmail = userResult.user.email;
+                
+                // Verify email is stored
+                console.log('✅ User email stored globally:', window.currentUserEmail);
+                console.log('✅ Email service available:', typeof emailService !== 'undefined');
+
+                // Initialize weekly report scheduler
+                if (typeof weeklyReportScheduler !== 'undefined') {
+                    weeklyReportScheduler.init();
+                    console.log('✅ Weekly report scheduler started');
+                }
+            } else {
+                console.error('❌ Failed to get user information');
+            }
+
+            // Setup logout button after authentication check
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            
+            const handleLogout = async (e) => {
+                e.preventDefault();
+                console.log('Logout button clicked');
+                const result = await authService.signOut();
+                if (result.success) {
+                    console.log('Logout successful, redirecting...');
+                    window.location.href = 'login.html';
+                } else {
+                    console.error('Logout failed:', result.error);
+                    alert('Failed to logout. Please try again.');
+                }
+            };
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            } else {
+                console.error('Logout button not found');
+            }
+            
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', handleLogout);
+            } else {
+                console.error('Mobile logout button not found');
+            }
+        });
+
+        // Initialize Adafruit IO data fetching
+        if (typeof initAIOData === 'function') {
+            initAIOData();
+        }
+        
+        // Responsive overlay navbar functionality
+                const hamburger = document.getElementById("hamburger");
+                const overlay = document.getElementById("overlay");
+
+                // Toggle overlay menu
+                function toggleMenu() {
+                    hamburger.classList.toggle("active");
+                    overlay.classList.toggle("active");
+                    // Prevent body scroll when menu is open
+                    document.body.style.overflow = overlay.classList.contains("active") ? "hidden" : "";
+                }
+
+                // Event listeners
+                hamburger.addEventListener("click", toggleMenu);
+
+                // Close menu when clicking any link
+                document.querySelectorAll(".overlay a").forEach(link => {
+                    link.addEventListener("click", () => {
+                        overlay.classList.remove("active");
+                        hamburger.classList.remove("active");
+                    });
+                });
+                
+                // Alert system implementation with persistence
+                let alerts = JSON.parse(localStorage.getItem('airsense-alerts') || '[]');
+                let alertCounter = parseInt(localStorage.getItem('airsense-alert-counter') || '1');
+                let dismissedAlerts = new Set(JSON.parse(localStorage.getItem('airsense-dismissed-alerts') || '[]'));
+                
+                // Clean up old data on load
+                (function() {
+                    const thirtyMin = Date.now() - 30 * 60 * 1000;
+                    alerts = alerts.filter(a => new Date(a.timestamp).getTime() > thirtyMin);
+                    const validDismissed = [...dismissedAlerts].filter(id => {
+                        const m = id.match(/alert-(\d+)-/);
+                        return m && parseInt(m[1]) > thirtyMin;
+                    });
+                    dismissedAlerts = new Set(validDismissed);
+                })();
+                
+                // Debounce helper to prevent glitchy rapid re-renders
+                let renderTimeout = null;
+                let isFirstRender = true;
+                function debouncedRenderAlerts() {
+                    if (renderTimeout) {
+                        clearTimeout(renderTimeout);
+                    }
+                    renderTimeout = setTimeout(() => {
+                        renderAlerts();
+                        renderTimeout = null;
+                    }, 100);
+                }
+                
+                // Alert types and their properties
+                const alertTypes = {
+                    danger: {
+                        icon: 'fa-exclamation-circle',
+                        styles: 'bg-destructive-10 border-destructive-20 text-destructive',
+                        borderClass: 'border-l-4 border-destructive-20'
+                    },
+                    warning: {
+                        icon: 'fa-exclamation-triangle',
+                        styles: 'bg-warning-10 border-warning-20 text-warning',
+                        borderClass: 'border-l-4 border-warning-20'
+                    },
+                    success: {
+                        icon: 'fa-check-circle',
+                        styles: 'bg-success-10 border-success-20 text-success',
+                        borderClass: 'border-l-4 border-success-20'
+                    },
+                    info: {
+                        icon: 'fa-info-circle',
+                        styles: 'bg-primary-10 border-primary-20 text-primary',
+                        borderClass: 'border-l-4 border-primary-20'
+                    }
+                };
+                
+                // Save alerts to localStorage
+                function saveAlertsToStorage() {
+                    try {
+                        localStorage.setItem('airsense-alerts', JSON.stringify(alerts));
+                        localStorage.setItem('airsense-alert-counter', alertCounter.toString());
+                        localStorage.setItem('airsense-dismissed-alerts', JSON.stringify([...dismissedAlerts]));
+                    } catch (e) {
+                        console.error('Error saving alerts to localStorage:', e);
+                    }
+                }
+                
+                // Function to generate alerts based on current data
+                function generateAlerts() {
+                    // Only run if document is visible
+                    if (document.hidden) {
+                        console.log('Document is hidden, skipping alert generation');
+                        return;
+                    }
+                    
+                    // Get current data from mocktest.js
+                    if (!window.currentData) {
+                        console.log('Mock data not yet available, skipping alert generation');
+                        return;
+                    }
+                    
+                    const currentAQI = window.currentData.aqi || 50;
+                    const currentPM25 = window.currentData.pm25 || 20;
+                    const currentCO2 = window.currentData.co2 || 500;
+                    const currentTemp = window.currentData.temp || 25;
+                    const currentHumidity = window.currentData.humidity || 50;
+                    
+                    console.log('Generating alerts with data:', { currentAQI, currentPM25, currentCO2, currentTemp, currentHumidity });
+                    
+                    // Clean up old acknowledged alerts (older than 10 minutes)
+                    const tenMin = Date.now() - 10 * 60 * 1000;
+                    alerts = alerts.filter(a => !a.acknowledged || new Date(a.timestamp).getTime() > tenMin);
+                    
+                    // Helper to create unique identifier
+                    const makeId = (type, title) => `${type}-${title.replace(/\s+/g, '-').toLowerCase()}`;
+                    
+                    // Helper to check if alert exists
+                    const hasAlert = (id) => alerts.some(a => !a.acknowledged && a.identifier === id && !dismissedAlerts.has(a.id));
+                    
+                    // Helper to add new alert
+                    const addAlert = (data) => {
+                        const identifier = makeId(data.type, data.title);
+                        if (!hasAlert(identifier)) {
+                            const alertId = `alert-${Date.now()}-${alertCounter++}`;
+                            alerts.push({
+                                ...data,
+                                id: alertId,
+                                identifier,
+                                timestamp: new Date(),
+                                acknowledged: false
+                            });
+                        }
+                    };
+                    
+                    // Generate alerts based on thresholds
+                    // AQI Alert
+                    if (currentAQI > 150) {
+                        addAlert({
+                            type: 'danger',
+                            title: 'Unhealthy Air Quality',
+                            message: `AQI level is at ${Math.round(currentAQI)}. Everyone may experience health effects.`
+                        });
+                    } else if (currentAQI > 100) {
+                        addAlert({
+                            type: 'warning',
+                            title: 'Moderate Air Quality',
+                            message: `AQI level is at ${Math.round(currentAQI)}. Sensitive individuals should consider limiting outdoor activities.`
+                        });
+                    }
+                    
+                    // PM2.5 Alert
+                    if (currentPM25 > 50) {
+                        addAlert({
+                            type: 'danger',
+                            title: 'High PM2.5 Levels',
+                            message: `PM2.5 concentration is at ${currentPM25.toFixed(2)} µg/m³. Air quality is unhealthy.`
+                        });
+                    } else if (currentPM25 > 25) {
+                        addAlert({
+                            type: 'warning',
+                            title: 'Elevated PM2.5 Levels',
+                            message: `PM2.5 concentration is at ${currentPM25.toFixed(2)} µg/m³. Air quality is moderate.`
+                        });
+                    }
+                    
+                    // CO2 Alert (VOC sensor)
+                    if (currentCO2 > 1500) {
+                        addAlert({
+                            type: 'danger',
+                            title: 'High VOC Levels',
+                            message: `VOC concentration is at ${Math.round(currentCO2)} ppb. Consider improving ventilation immediately.`
+                        });
+                    } else if (currentCO2 > 1000) {
+                        addAlert({
+                            type: 'warning',
+                            title: 'Elevated VOC Levels',
+                            message: `VOC concentration is at ${Math.round(currentCO2)} ppb. Consider improving ventilation.`
+                        });
+                    }
+                    
+                    // Temperature Alert
+                    if (currentTemp < 15 || currentTemp > 32) {
+                        addAlert({
+                            type: 'danger',
+                            title: 'Temperature Alert',
+                            message: `Room temperature is ${currentTemp.toFixed(1)}°C. ${currentTemp < 15 ? 'Too cold.' : 'Too warm.'} Ideal range is 18-28°C.`
+                        });
+                    } else if (currentTemp < 18 || currentTemp > 28) {
+                        addAlert({
+                            type: 'warning',
+                            title: 'Temperature Alert',
+                            message: `Room temperature is ${currentTemp.toFixed(1)}°C. ${currentTemp < 18 ? 'Slightly cool.' : 'Slightly warm.'} Ideal range is 18-28°C.`
+                        });
+                    }
+                    
+                    // Humidity Alert
+                    if (currentHumidity < 25 || currentHumidity > 65) {
+                        addAlert({
+                            type: 'danger',
+                            title: 'Humidity Alert',
+                            message: `Humidity level is ${Math.round(currentHumidity)}%. ${currentHumidity < 25 ? 'Too dry.' : 'Too humid.'} Ideal range is 30-60%.`
+                        });
+                    } else if (currentHumidity < 30 || currentHumidity > 60) {
+                        addAlert({
+                            type: 'warning',
+                            title: 'Humidity Alert',
+                            message: `Humidity level is ${Math.round(currentHumidity)}%. ${currentHumidity < 30 ? 'Slightly dry.' : 'Slightly humid.'} Ideal range is 30-60%.`
+                        });
+                    }
+                    
+                    // Save and render
+                    localStorage.setItem('airsense-alerts', JSON.stringify(alerts));
+                    localStorage.setItem('airsense-alert-counter', alertCounter.toString());
+                    renderAlerts();
+                }
+                
+                // Function to acknowledge an alert - smooth animation
+                function acknowledgeAlert(alertId) {
+                    console.log('Acknowledging alert:', alertId);
+                    
+                    // Find the alert element and animate it
+                    const alertElement = document.querySelector(`[data-alert-id="${alertId}"]`);
+                    if (alertElement) {
+                        alertElement.style.transition = 'all 0.3s ease';
+                        alertElement.style.opacity = '0.5';
+                        alertElement.style.transform = 'scale(0.95)';
+                    }
+                    
+                    setTimeout(() => {
+                        alerts = alerts.map(alert => 
+                            alert.id === alertId ? {...alert, acknowledged: true, acknowledgedAt: new Date()} : alert
+                        );
+                        saveAlertsToStorage();
+                        debouncedRenderAlerts();
+                    }, 300);
+                }
+                
+                // Function to dismiss an alert - smooth slide out animation
+                function dismissAlert(alertId) {
+                    console.log('Dismissing alert:', alertId);
+                    
+                    // Add to dismissed set
+                    dismissedAlerts.add(alertId);
+                    
+                    // Find the alert element and animate it
+                    const alertElement = document.querySelector(`[data-alert-id="${alertId}"]`);
+                    if (alertElement) {
+                        alertElement.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 1, 1)';
+                        alertElement.style.opacity = '0';
+                        alertElement.style.transform = 'translateX(100%)';
+                        alertElement.style.maxHeight = alertElement.offsetHeight + 'px';
+                        
+                        setTimeout(() => {
+                            alertElement.style.maxHeight = '0';
+                            alertElement.style.marginBottom = '0';
+                            alertElement.style.paddingTop = '0';
+                            alertElement.style.paddingBottom = '0';
+                        }, 200);
+                    }
+                    
+                    setTimeout(() => {
+                        alerts = alerts.filter(alert => alert.id !== alertId);
+                        saveAlertsToStorage();
+                        debouncedRenderAlerts();
+                    }, 600);
+                }
+                
+                // Function to render alerts - smooth updates without full refresh
+                function renderAlerts() {
+                    console.log('Rendering alerts, total count:', alerts.length);
+                    const alertsContainer = document.getElementById('alerts-container');
+                    if (!alertsContainer) return;
+                    
+                    // Filter active (non-acknowledged and not dismissed) alerts
+                    const activeAlerts = alerts.filter(alert => 
+                        !alert.acknowledged && !dismissedAlerts.has(alert.id)
+                    );
+                    const hasActiveAlerts = activeAlerts.length > 0;
+                    
+                    // Update or create header section
+                    let headerDiv = alertsContainer.querySelector('.alerts-header');
+                    if (!headerDiv) {
+                        headerDiv = document.createElement('div');
+                        headerDiv.className = 'alerts-header flex items-center justify-center gap-3 mb-6';
+                        
+                        // Create bell icon
+                        const bellIcon = document.createElement('i');
+                        bellIcon.className = 'alert-bell fas fa-bell text-2xl';
+                        bellIcon.style.transition = 'color 0.3s ease';
+                        
+                        // Create title
+                        const titleElement = document.createElement('h2');
+                        titleElement.className = 'text-2xl font-bold text-white';
+                        titleElement.textContent = 'System Alerts';
+                        
+                        headerDiv.appendChild(bellIcon);
+                        headerDiv.appendChild(titleElement);
+                        alertsContainer.appendChild(headerDiv);
+                    }
+                    
+                    // Update bell icon color (don't recreate it)
+                    const bellIcon = headerDiv.querySelector('.alert-bell');
+                    if (bellIcon) {
+                        bellIcon.className = `alert-bell fas fa-bell text-2xl ${hasActiveAlerts ? 'text-warning animate-pulse' : 'text-muted-foreground'}`;
+                    }
+                    
+                    // Update active alerts counter with smooth transition
+                    let counterDiv = headerDiv.querySelector('.alert-counter');
+                    if (hasActiveAlerts) {
+                        if (!counterDiv) {
+                            counterDiv = document.createElement('div');
+                            counterDiv.className = 'alert-counter bg-warning text-warning-foreground px-3 py-1 rounded-full text-sm font-semibold';
+                            counterDiv.style.transition = 'all 0.3s ease';
+                            counterDiv.textContent = `${activeAlerts.length} Active`;
+                            headerDiv.appendChild(counterDiv);
+                            
+                            // Fade in on first appearance
+                            if (!isFirstRender) {
+                                counterDiv.style.opacity = '0';
+                                counterDiv.style.transform = 'scale(0.8)';
+                                setTimeout(() => {
+                                    counterDiv.style.opacity = '1';
+                                    counterDiv.style.transform = 'scale(1)';
+                                }, 10);
+                            }
+                        } else {
+                            // Smooth number update only if count changed
+                            const currentText = counterDiv.textContent;
+                            const newText = `${activeAlerts.length} Active`;
+                            
+                            if (currentText !== newText && !isFirstRender) {
+                                counterDiv.style.transition = 'transform 0.15s ease-in-out';
+                                counterDiv.style.transform = 'scale(1.1)';
+                                
+                                setTimeout(() => {
+                                    counterDiv.textContent = newText;
+                                    counterDiv.style.transform = 'scale(1)';
+                                }, 75);
+                            } else if (currentText !== newText) {
+                                // First render - just update without animation
+                                counterDiv.textContent = newText;
+                            }
+                        }
+                    } else if (counterDiv) {
+                        // Fade out counter if no alerts
+                        counterDiv.style.transition = 'all 0.3s ease';
+                        counterDiv.style.opacity = '0';
+                        counterDiv.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            if (counterDiv.parentNode) {
+                                counterDiv.remove();
+                            }
+                        }, 300);
+                    }
+                    
+                    // Mark that first render is complete
+                    if (isFirstRender) {
+                        isFirstRender = false;
+                    }
+                    
+                    // Get or create alerts list container
+                    let alertsListDiv = alertsContainer.querySelector('.alerts-list');
+                    if (!alertsListDiv) {
+                        alertsListDiv = document.createElement('div');
+                        alertsListDiv.className = 'alerts-list space-y-4';
+                        alertsContainer.appendChild(alertsListDiv);
+                    }
+                    
+                    // Render alerts or "All Clear" message with smooth transitions
+                    if (hasActiveAlerts) {
+                        // Remove "All Clear" message if it exists
+                        const clearDiv = alertsContainer.querySelector('.all-clear');
+                        if (clearDiv) {
+                            clearDiv.style.transition = 'opacity 0.3s ease';
+                            clearDiv.style.opacity = '0';
+                            setTimeout(() => clearDiv.remove(), 300);
+                        }
+                        
+                        // Get existing alert IDs
+                        const existingAlertIds = new Set(
+                            [...alertsListDiv.querySelectorAll('[data-alert-id]')].map(el => el.getAttribute('data-alert-id'))
+                        );
+                        
+                        // Add new alerts with slide-in animation
+                        activeAlerts.forEach(alert => {
+                            if (!existingAlertIds.has(alert.id)) {
+                                const alertType = alertTypes[alert.type] || alertTypes.info;
+                                
+                                const alertDiv = document.createElement('div');
+                                alertDiv.setAttribute('data-alert-id', alert.id);
+                                alertDiv.className = `card-peaceful p-6 ${alertType.styles} transition-all duration-300 hover:shadow-lg ${alertType.borderClass}`;
+                                alertDiv.style.opacity = '0';
+                                alertDiv.style.transform = 'translateX(-20px)';
+                                
+                                const timestamp = new Date(alert.timestamp);
+                                const alertContent = `
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex items-start gap-4 flex-1">
+                                            <i class="fas ${alertType.icon} text-xl mt-1 flex-shrink-0"></i>
+                                            <div class="flex-1">
+                                                <h3 class="font-semibold text-lg mb-2 text-white">${alert.title}</h3>
+                                                <p class="text-sm opacity-90 mb-3 text-white">${alert.message}</p>
+                                                <p class="text-xs opacity-70 text-white">
+                                                    ${timestamp.toLocaleString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex gap-2 ml-4">
+                                            <button
+                                                onclick="acknowledgeAlert('${alert.id}')"
+                                                class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition-all hover:scale-105 text-white"
+                                                title="Acknowledge"
+                                            >
+                                                Acknowledge
+                                            </button>
+                                            <button
+                                                onclick="dismissAlert('${alert.id}')"
+                                                class="p-1 hover:bg-white/20 rounded-lg transition-all hover:scale-110 text-white"
+                                                title="Dismiss"
+                                            >
+                                                <i class="fas fa-times text-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                
+                                alertDiv.innerHTML = alertContent;
+                                alertsListDiv.appendChild(alertDiv);
+                                
+                                // Trigger slide-in animation
+                                setTimeout(() => {
+                                    alertDiv.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                                    alertDiv.style.opacity = '1';
+                                    alertDiv.style.transform = 'translateX(0)';
+                                }, 50);
+                            }
+                        });
+                        
+                        // Remove alerts that are no longer active
+                        const currentAlertIds = new Set(activeAlerts.map(a => a.id));
+                        existingAlertIds.forEach(id => {
+                            if (!currentAlertIds.has(id)) {
+                                const alertElement = alertsListDiv.querySelector(`[data-alert-id="${id}"]`);
+                                if (alertElement && !alertElement.style.opacity) {
+                                    alertElement.style.transition = 'all 0.3s ease';
+                                    alertElement.style.opacity = '0';
+                                    alertElement.style.transform = 'translateX(20px)';
+                                    setTimeout(() => alertElement.remove(), 300);
+                                }
+                            }
+                        });
+                    } else {
+                        // Clear alerts list
+                        alertsListDiv.innerHTML = '';
+                        
+                        // Show "All Clear" message
+                        let clearDiv = alertsContainer.querySelector('.all-clear');
+                        if (!clearDiv) {
+                            clearDiv = document.createElement('div');
+                            clearDiv.className = 'all-clear card-peaceful p-12 text-center';
+                            clearDiv.style.opacity = '0';
+                            
+                            const clearContent = `
+                                <i class="fas fa-check-circle mx-auto mb-4 text-success text-5xl"></i>
+                                <h3 class="text-xl font-semibold mb-2 text-success">All Clear!</h3>
+                                <p class="text-muted-foreground text-white">
+                                    No active alerts. Air quality monitoring systems are operating normally.
+                                </p>
+                            `;
+                            
+                            clearDiv.innerHTML = clearContent;
+                            alertsContainer.appendChild(clearDiv);
+                            
+                            // Fade in animation
+                            setTimeout(() => {
+                                clearDiv.style.transition = 'opacity 0.5s ease';
+                                clearDiv.style.opacity = '1';
+                            }, 50);
+                        }
+                    }
+                }
+                
+                // Initialize alerts and set up periodic updates
+                function initAlerts() {
+                    // Check if alerts container exists
+                    const alertsContainer = document.getElementById('alerts-container');
+                    if (!alertsContainer) {
+                        console.error('Alerts container not found');
+                        return;
+                    }
+                    
+                    generateAlerts();
+                    // Update alerts every 5 seconds (same as mock data updates)
+                    setInterval(generateAlerts, 5000);
+                }
+                
+                // Make functions globally accessible
+                window.acknowledgeAlert = acknowledgeAlert;
+                window.dismissAlert = dismissAlert;
+                
+                // Start the alert system after mock data is available
+                function waitForMockData() {
+                    if (typeof window.currentData !== 'undefined') {
+                        initAlerts();
+                    } else {
+                        setTimeout(waitForMockData, 100);
+                    }
+                }
+                // Add a small delay to ensure DOM is fully loaded
+                setTimeout(waitForMockData, 500);
+                
+                // Handle visibility change
+                document.addEventListener('visibilitychange', function() {
+                    if (!document.hidden) {
+                        // Page became visible, update alerts
+                        if (typeof generateAlerts === 'function') {
+                            generateAlerts();
+                        }
+                    }
+                });
+    </script>
+
+    <!-- Footer -->
+    <footer class="card-peaceful border-t border-border/50 backdrop-blur-xl mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                        <span class="text-sm font-bold text-primary-foreground">AQ</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">AirSense Monitor</p>
+                        <p class="text-xs text-gray-400">Real-time air quality monitoring</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-4 md:gap-6">
+                    <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">Contact</a>
+                    <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">Support</a>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-xs text-gray-400">© 2025 AirSense. All rights reserved.</p>
+                    <p class="text-xs text-gray-400 mt-1">Version 1.0.0</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

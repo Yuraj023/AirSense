@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirSense Analytics</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="global.css">
+    <style>
+        /* Calm Sky Monitor Design System - Dark Blue Theme */
+        :root {
+            /* Dark Blue Base Colors */
+            --background: 225 45% 8%;
+            --foreground: 210 25% 95%;
+            
+            /* Card System with Deep Blue Tints */
+            --card: 225 40% 12%;
+            --card-foreground: 210 25% 95%;
+            
+            /* Primary Blue System - Bright Blues */
+            --primary: 210 85% 65%;
+            --primary-foreground: 225 45% 8%;
+            --primary-soft: 210 70% 75%;
+            --primary-glow: 205 90% 70%;
+            
+            /* Alert Colors */
+            --destructive: 0 75% 55%;
+            --warning: 45 85% 60%;
+            --success: 160 60% 50%;
+            
+            /* AQI Color System */
+            --aqi-good: 160 65% 55%;
+            --aqi-moderate: 48 85% 65%;
+            --aqi-unhealthy-sensitive: 25 90% 60%;
+            --aqi-unhealthy: 0 80% 65%;
+            --aqi-very-unhealthy: 280 75% 65%;
+            --aqi-hazardous: 350 80% 60%;
+            
+            /* Border and Input - Blue Tinted */
+            --border: 225 30% 25%;
+            
+            /* Enhanced Blue Gradients */
+            --gradient-peaceful: linear-gradient(135deg, hsl(225 50% 15%) 0%, hsl(220 45% 20%) 50%, hsl(215 55% 25%) 100%);
+            --gradient-card: linear-gradient(145deg, hsl(225 40% 12%) 0%, hsl(220 35% 16%) 100%);
+            --gradient-primary: linear-gradient(135deg, hsl(210 85% 65%) 0%, hsl(205 90% 70%) 100%);
+            --gradient-aqi: linear-gradient(90deg, hsl(var(--aqi-good)) 0%, hsl(var(--aqi-hazardous)) 100%);
+            
+            /* Blue-tinted Shadows */
+            --shadow-peaceful: 0 4px 20px -4px hsl(210 85% 65% / 0.25);
+            --shadow-card: 0 2px 15px -2px hsl(225 45% 8% / 0.4);
+            --shadow-elevated: 0 8px 35px -8px hsl(210 85% 65% / 0.3);
+            --shadow-glow: 0 0 40px hsl(205 90% 70% / 0.4);
+            
+            /* Animations */
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            --radius: 0.75rem;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            padding-top: 4rem; /* Account for fixed navbar */
+            color: hsl(var(--foreground));
+            min-height: 100vh;
+        }
+        
+        /* Background video */
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+        
+        /* Background overlay for better text readability */
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85); /* Dark blue overlay with transparency */
+            z-index: -1;
+        }
+        
+        /* Peaceful Card Styles */
+        .card-peaceful {
+            background: var(--gradient-card);
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition-smooth);
+        }
+        
+        .card-peaceful:hover {
+            box-shadow: var(--shadow-elevated);
+            transform: translateY(-2px);
+        }
+        
+        /* Gradient Primary Button */
+        .gradient-primary {
+            background: var(--gradient-primary);
+            color: hsl(var(--primary-foreground));
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .gradient-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elevated);
+        }
+        
+        /* ==== NAVBAR ==== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: #4fd1c5;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .nav-links a.active {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* ==== LOGOUT BUTTON ==== */
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* ==== HAMBURGER ==== */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 4px 0;
+            transition: all 0.3s;
+        }
+
+        /* ==== MOBILE MENU OVERLAY ==== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 100;
+        }
+
+        .overlay.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .overlay a {
+            font-size: 2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .overlay a:hover {
+            color: #4fd1c5;
+        }
+
+        .overlay a.active {
+            color: #4fd1c5;
+            font-weight: 700;
+        }
+
+        /* ==== RESPONSIVE ==== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .user-info {
+                display: none !important;
+            }
+
+            .mobile-logout-btn {
+                display: flex !important;
+                background: rgba(239, 68, 68, 0.2);
+                color: white;
+                border: 1px solid rgba(239, 68, 68, 0.5);
+                padding: 0.8rem 2rem;
+                border-radius: 8px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                align-items: center;
+                gap: 0.8rem;
+                justify-content: center;
+                text-decoration: none;
+            }
+
+            .mobile-logout-btn:hover {
+                background: rgba(239, 68, 68, 0.4);
+                border-color: rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        /* ==== ANIMATED HAMBURGER ==== */
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        /* Section Header */
+        .section-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-header .icon-container {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: var(--gradient-primary);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            min-height: 200px;
+        }
+        
+        /* Historical Trends Card */
+        .trend-card {
+            background: linear-gradient(145deg, hsl(225 40% 12%) 0%, hsl(220 35% 16%) 100%);
+            border: 1px solid hsl(210 85% 65% / 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px hsl(210 85% 65% / 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .trend-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                hsl(210 85% 65%) 0%, 
+                hsl(280 75% 65%) 50%, 
+                hsl(160 65% 55%) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .trend-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(33, 150, 243, 0.2), 0 0 0 1px hsl(210 85% 65% / 0.3);
+            border-color: hsl(210 85% 65% / 0.4);
+        }
+        
+        .trend-card:hover::before {
+            opacity: 1;
+        }
+        
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid hsl(225 30% 25% / 0.5);
+        }
+        
+        .chart-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .chart-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chart-title {
+            text-align: left;
+            color: hsl(210 25% 95%);
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+        
+        .chart-subtitle {
+            text-align: left;
+            color: hsl(215 20% 65%);
+            font-size: 12px;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .chart-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: hsl(210 85% 65% / 0.15);
+            border: 1px solid hsl(210 85% 65% / 0.3);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: hsl(210 85% 75%);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chart-badge i {
+            font-size: 10px;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .chart-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid hsl(225 30% 25% / 0.3);
+        }
+        
+        .chart-stat {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: hsl(225 40% 10%);
+            border-radius: 8px;
+            border: 1px solid hsl(225 30% 20%);
+        }
+        
+        .chart-stat-label {
+            font-size: 10px;
+            color: hsl(215 20% 65%);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .chart-stat-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: hsl(210 85% 75%);
+        }
+        
+        /* Responsive styles for mobile */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 150px;
+                min-height: 150px;
+            }
+            
+            .trend-card {
+                padding: 0.75rem;
+                border-radius: 0.5rem;
+            }
+            
+            .chart-title {
+                font-size: 1rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .chart-subtitle {
+                font-size: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            /* Grid layout */
+            .charts-grid {
+                gap: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chart-container {
+                height: 120px;
+                min-height: 120px;
+            }
+            
+            .trend-card {
+                padding: 0.5rem;
+            }
+            
+            .chart-title {
+                font-size: 0.875rem;
+            }
+            
+            .chart-subtitle {
+                font-size: 0.625rem;
+            }
+            
+            /* Grid layout */
+            .charts-grid {
+                gap: 0.5rem;
+            }
+        }
+        
+        /* Extra small devices */
+        @media (max-width: 360px) {
+            .chart-container {
+                height: 100px;
+                min-height: 100px;
+            }
+            
+            .chart-title {
+                font-size: 0.75rem;
+            }
+            
+            .chart-subtitle {
+                font-size: 0.5rem;
+            }
+        }
+        
+        /* Grid layout */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .charts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .charts-grid {
+                gap: 1.5rem;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <!-- Background video -->
+    <video autoplay muted loop class="background-video">
+        <source src="cloud.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+    <!-- Background overlay for better readability -->
+    <div class="background-overlay"></div>
+    
+    <!-- ==== NAVBAR ==== -->
+    <header class="navbar">
+        <div class="logo">AirSense<span>.</span></div>
+
+        <nav class="nav-links">
+            <a href="index.html">Dashboard</a>
+            <a href="analytics.html" class="active">Analytics</a>
+            <a href="live.html">Live</a>
+            <a href="about.html">About</a>
+            <a href="settings.html">Settings</a>
+        </nav>
+
+        <div class="user-info" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-profile" style="display: none;">
+                <div class="user-avatar" id="user-avatar"></div>
+                <span id="user-name" style="font-size: 14px; color: rgba(255,255,255,0.9);"></span>
+            </div>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- ==== MOBILE OVERLAY ==== -->
+    <div class="overlay" id="overlay">
+        <a href="index.html">Dashboard</a>
+        <a href="analytics.html" class="active">Analytics</a>
+        <a href="live.html">Live</a>
+        <a href="about.html">About</a>
+        <a href="settings.html">Settings</a>
+        <button class="mobile-logout-btn" id="mobile-logout-btn" style="display: none;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="min-h-screen px-2 sm:px-3 py-16 sm:py-20">
+        <div class="max-w-7xl mx-auto w-full">
+            <!-- Hero Section -->
+            <section class="mb-6 sm:mb-8 text-center">
+                <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">
+                    <i class="fas fa-chart-line mr-2" style="color: hsl(210 85% 65%);"></i>
+                    Historical Trends
+                </h1>
+                <p class="text-sm text-white/60">Real-time air quality data visualization</p>
+            </section>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Chart 1 - PM2.5 Trend -->
+                <div class="trend-card">
+                    <div class="chart-header">
+                        <div class="chart-title-wrapper">
+                            <div class="chart-icon" style="background: linear-gradient(135deg, hsl(210 85% 65%), hsl(210 85% 50%));">
+                                <i class="fas fa-smog"></i>
+                            </div>
+                            <div>
+                                <div class="chart-title">PM2.5 Particles</div>
+                                <div class="chart-subtitle">Particulate Matter</div>
+                            </div>
+                        </div>
+                        <div class="chart-badge">
+                            <i class="fas fa-circle"></i>
+                            Live
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pm25TrendChart"></canvas>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Current</div>
+                            <div class="chart-stat-value" id="pm25-current">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Avg</div>
+                            <div class="chart-stat-value" id="pm25-avg">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Peak</div>
+                            <div class="chart-stat-value" id="pm25-peak">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chart 2 - VOC Trend -->
+                <div class="trend-card">
+                    <div class="chart-header">
+                        <div class="chart-title-wrapper">
+                            <div class="chart-icon" style="background: linear-gradient(135deg, hsl(280 75% 65%), hsl(280 75% 50%));">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <div>
+                                <div class="chart-title">VOC Levels</div>
+                                <div class="chart-subtitle">Volatile Organic Compounds</div>
+                            </div>
+                        </div>
+                        <div class="chart-badge">
+                            <i class="fas fa-circle"></i>
+                            Live
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="vocTrendChart"></canvas>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Current</div>
+                            <div class="chart-stat-value" id="voc-current">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Avg</div>
+                            <div class="chart-stat-value" id="voc-avg">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Peak</div>
+                            <div class="chart-stat-value" id="voc-peak">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chart 3 - Temperature & Humidity -->
+                <div class="trend-card">
+                    <div class="chart-header">
+                        <div class="chart-title-wrapper">
+                            <div class="chart-icon" style="background: linear-gradient(135deg, hsl(160 65% 55%), hsl(160 65% 40%));">
+                                <i class="fas fa-temperature-high"></i>
+                            </div>
+                            <div>
+                                <div class="chart-title">Temperature & Humidity</div>
+                                <div class="chart-subtitle">Climate Monitoring</div>
+                            </div>
+                        </div>
+                        <div class="chart-badge">
+                            <i class="fas fa-circle"></i>
+                            Live
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="tempHumidityChart"></canvas>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Temp</div>
+                            <div class="chart-stat-value" id="temp-current">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Humidity</div>
+                            <div class="chart-stat-value" id="humidity-current">--</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chart 4 - Air Quality Index -->
+                <div class="trend-card">
+                    <div class="chart-header">
+                        <div class="chart-title-wrapper">
+                            <div class="chart-icon" style="background: linear-gradient(135deg, hsl(48 85% 65%), hsl(48 85% 50%));">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                            <div>
+                                <div class="chart-title">Air Quality Index</div>
+                                <div class="chart-subtitle">Overall Air Quality</div>
+                            </div>
+                        </div>
+                        <div class="chart-badge">
+                            <i class="fas fa-circle"></i>
+                            Live
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="aqiChart"></canvas>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Current</div>
+                            <div class="chart-stat-value" id="aqi-current">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Avg</div>
+                            <div class="chart-stat-value" id="aqi-avg">--</div>
+                        </div>
+                        <div class="chart-stat">
+                            <div class="chart-stat-label">Status</div>
+                            <div class="chart-stat-value" id="aqi-status" style="font-size: 12px;">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="env-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="sensor-data-service.js"></script>
+    <script src="config.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="adafruit-io.js"></script>
+    <script src="analytics.js"></script>
+    <script>
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const isAuthenticated = await authService.requireAuth();
+            if (!isAuthenticated) return;
+
+            const userResult = await authService.getCurrentUser();
+            if (userResult.success && userResult.user) {
+                window.currentUserId = userResult.user.id;
+            }
+
+            // Setup logout button after authentication check
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            
+            const handleLogout = async (e) => {
+                e.preventDefault();
+                console.log('Logout button clicked');
+                const result = await authService.signOut();
+                if (result.success) {
+                    console.log('Logout successful, redirecting...');
+                    window.location.href = 'login.html';
+                } else {
+                    console.error('Logout failed:', result.error);
+                    alert('Failed to logout. Please try again.');
+                }
+            };
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            } else {
+                console.error('Logout button not found');
+            }
+            
+            if (mobileLogoutBtn) {
+                mobileLogoutBtn.addEventListener('click', handleLogout);
+            } else {
+                console.error('Mobile logout button not found');
+            }
+        });
+
+        // Storage for historical data (1 hour of readings)
+        let historicalData = {
+            timestamps: [],
+            aqi: [],
+            pm25: [],
+            voc: [],
+            temperature: [],
+            humidity: []
+        };
+        
+        const MAX_DATA_POINTS = 180; // Store 1 hour of data at 20-second intervals (3 per minute * 60 minutes)
+        let lastUpdateTimestamp = Date.now();
+        let lastReceivedValues = null;
+        let connectionCheckInterval;
+        const OFFLINE_THRESHOLD = 35000; // 35 seconds (between 30-40 as requested)
+        let isSystemOnline = true;
+        
+        // Override updateDashboardWithData to capture real-time data for charts
+        const originalUpdateDashboard = window.updateDashboardWithData;
+        window.updateDashboardWithData = function(data) {
+            // Call original function
+            if (originalUpdateDashboard) {
+                originalUpdateDashboard(data);
+            }
+            
+            // Check if data actually changed
+            const currentValues = {
+                aqi: data.aqi && data.aqi.value ? parseFloat(data.aqi.value) : null,
+                pm25: data.pm25 && data.pm25.value ? parseFloat(data.pm25.value) : null,
+                voc: data.gas && data.gas.value ? parseFloat(data.gas.value) : null,
+                temperature: data.temperature && data.temperature.value ? parseFloat(data.temperature.value) : null,
+                humidity: data.humidity && data.humidity.value ? parseFloat(data.humidity.value) : null
+            };
+            
+            // Check if values changed from last reading
+            const valuesChanged = !lastReceivedValues || 
+                JSON.stringify(currentValues) !== JSON.stringify(lastReceivedValues);
+            
+            if (valuesChanged) {
+                // Update last update timestamp only if values changed
+                lastUpdateTimestamp = Date.now();
+                lastReceivedValues = currentValues;
+                
+                // If system was offline, mark it online now
+                if (!isSystemOnline) {
+                    isSystemOnline = true;
+                    updateSystemStatus(true);
+                }
+                
+                // Store data for charts
+                updateHistoricalData(data);
+                
+                // Update charts with new data
+                updateAllCharts();
+            }
+        };
+        
+        // Function to update historical data storage
+        function updateHistoricalData(data) {
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            
+            // Add new data point
+            historicalData.timestamps.push(timestamp);
+            historicalData.aqi.push(data.aqi && data.aqi.value ? parseFloat(data.aqi.value) : null);
+            historicalData.pm25.push(data.pm25 && data.pm25.value ? parseFloat(data.pm25.value) : null);
+            historicalData.voc.push(data.gas && data.gas.value ? parseFloat(data.gas.value) : null);
+            historicalData.temperature.push(data.temperature && data.temperature.value ? parseFloat(data.temperature.value) : null);
+            historicalData.humidity.push(data.humidity && data.humidity.value ? parseFloat(data.humidity.value) : null);
+            
+            // Keep only last MAX_DATA_POINTS (1 hour of data)
+            if (historicalData.timestamps.length > MAX_DATA_POINTS) {
+                historicalData.timestamps.shift();
+                historicalData.aqi.shift();
+                historicalData.pm25.shift();
+                historicalData.voc.shift();
+                historicalData.temperature.shift();
+                historicalData.humidity.shift();
+            }
+            
+            console.log('Historical data updated. Data points:', historicalData.timestamps.length);
+            
+            // Update statistics displays
+            updateStatistics();
+        }
+        
+        // Function to calculate and update statistics
+        function updateStatistics() {
+            // Helper to calculate average
+            const calcAvg = (arr) => {
+                const filtered = arr.filter(v => v !== null && !isNaN(v));
+                return filtered.length > 0 ? (filtered.reduce((a, b) => a + b, 0) / filtered.length).toFixed(1) : '--';
+            };
+            
+            // Helper to find max
+            const calcMax = (arr) => {
+                const filtered = arr.filter(v => v !== null && !isNaN(v));
+                return filtered.length > 0 ? Math.max(...filtered).toFixed(1) : '--';
+            };
+            
+            // Helper to get current (last value)
+            const getCurrent = (arr) => {
+                const filtered = arr.filter(v => v !== null && !isNaN(v));
+                return filtered.length > 0 ? filtered[filtered.length - 1].toFixed(1) : '--';
+            };
+            
+            // Update PM2.5 stats
+            const pm25Current = document.getElementById('pm25-current');
+            const pm25Avg = document.getElementById('pm25-avg');
+            const pm25Peak = document.getElementById('pm25-peak');
+            if (pm25Current) pm25Current.textContent = getCurrent(historicalData.pm25);
+            if (pm25Avg) pm25Avg.textContent = calcAvg(historicalData.pm25);
+            if (pm25Peak) pm25Peak.textContent = calcMax(historicalData.pm25);
+            
+            // Update VOC stats
+            const vocCurrent = document.getElementById('voc-current');
+            const vocAvg = document.getElementById('voc-avg');
+            const vocPeak = document.getElementById('voc-peak');
+            if (vocCurrent) vocCurrent.textContent = getCurrent(historicalData.voc);
+            if (vocAvg) vocAvg.textContent = calcAvg(historicalData.voc);
+            if (vocPeak) vocPeak.textContent = calcMax(historicalData.voc);
+            
+            // Update Temperature & Humidity stats
+            const tempCurrent = document.getElementById('temp-current');
+            const humidityCurrent = document.getElementById('humidity-current');
+            if (tempCurrent) tempCurrent.textContent = getCurrent(historicalData.temperature) + '°C';
+            if (humidityCurrent) humidityCurrent.textContent = getCurrent(historicalData.humidity) + '%';
+            
+            // Update AQI stats
+            const aqiCurrent = document.getElementById('aqi-current');
+            const aqiAvg = document.getElementById('aqi-avg');
+            const aqiStatus = document.getElementById('aqi-status');
+            const currentAQI = parseFloat(getCurrent(historicalData.aqi));
+            if (aqiCurrent) aqiCurrent.textContent = isNaN(currentAQI) ? '--' : Math.round(currentAQI);
+            if (aqiAvg) aqiAvg.textContent = calcAvg(historicalData.aqi);
+            
+            // Update AQI status
+            if (aqiStatus && !isNaN(currentAQI)) {
+                if (currentAQI <= 50) aqiStatus.textContent = 'Good';
+                else if (currentAQI <= 100) aqiStatus.textContent = 'Moderate';
+                else if (currentAQI <= 150) aqiStatus.textContent = 'Unhealthy';
+                else if (currentAQI <= 200) aqiStatus.textContent = 'Poor';
+                else aqiStatus.textContent = 'Hazardous';
+            }
+        }
+        
+        // Function to update all charts with real-time data
+        function updateAllCharts() {
+            if (historicalData.timestamps.length < 2) {
+                console.log('Not enough data points yet to update charts');
+                return;
+            }
+            
+            // Update PM2.5 chart
+            if (typeof pm25TrendChart !== 'undefined' && pm25TrendChart) {
+                pm25TrendChart.data.labels = [...historicalData.timestamps];
+                pm25TrendChart.data.datasets[0].data = [...historicalData.pm25];
+                pm25TrendChart.update('none'); // 'none' mode for better performance
+            }
+            
+            // Update VOC chart
+            if (typeof vocTrendChart !== 'undefined' && vocTrendChart) {
+                vocTrendChart.data.labels = [...historicalData.timestamps];
+                vocTrendChart.data.datasets[0].data = [...historicalData.voc];
+                vocTrendChart.update('none');
+            }
+            
+            // Update Temperature & Humidity chart
+            if (typeof tempHumidityChart !== 'undefined' && tempHumidityChart) {
+                tempHumidityChart.data.labels = [...historicalData.timestamps];
+                tempHumidityChart.data.datasets[0].data = [...historicalData.temperature];
+                tempHumidityChart.data.datasets[1].data = [...historicalData.humidity];
+                tempHumidityChart.update('none');
+            }
+            
+            // Update AQI chart
+            if (typeof aqiChart !== 'undefined' && aqiChart) {
+                aqiChart.data.labels = [...historicalData.timestamps];
+                aqiChart.data.datasets[0].data = [...historicalData.aqi];
+                aqiChart.update('none');
+            }
+        }
+        
+        // Function to check connection status periodically
+        function checkConnectionStatus() {
+            const timeSinceLastUpdate = Date.now() - lastUpdateTimestamp;
+            
+            if (timeSinceLastUpdate > OFFLINE_THRESHOLD && isSystemOnline) {
+                // System went offline
+                isSystemOnline = false;
+                updateSystemStatus(false);
+            }
+        }
+        
+        // Function to update system status on all charts
+        function updateSystemStatus(isOnline) {
+            const statusMessage = isOnline ? '' : '⚠️ System Offline - No data received';
+            const messageColor = isOnline ? '' : 'rgba(220, 38, 38, 0.9)';
+            
+            // Update PM2.5 chart
+            if (typeof pm25TrendChart !== 'undefined' && pm25TrendChart) {
+                if (!isOnline) {
+                    pm25TrendChart.options.plugins.title = {
+                        display: true,
+                        text: statusMessage,
+                        color: messageColor,
+                        font: { size: 14, weight: 'bold' },
+                        padding: { top: 5, bottom: 5 }
+                    };
+                } else {
+                    pm25TrendChart.options.plugins.title = { display: false };
+                }
+                pm25TrendChart.update();
+            }
+            
+            // Update VOC chart
+            if (typeof vocTrendChart !== 'undefined' && vocTrendChart) {
+                if (!isOnline) {
+                    vocTrendChart.options.plugins.title = {
+                        display: true,
+                        text: statusMessage,
+                        color: messageColor,
+                        font: { size: 14, weight: 'bold' },
+                        padding: { top: 5, bottom: 5 }
+                    };
+                } else {
+                    vocTrendChart.options.plugins.title = { display: false };
+                }
+                vocTrendChart.update();
+            }
+            
+            // Update Temperature & Humidity chart
+            if (typeof tempHumidityChart !== 'undefined' && tempHumidityChart) {
+                if (!isOnline) {
+                    tempHumidityChart.options.plugins.title = {
+                        display: true,
+                        text: statusMessage,
+                        color: messageColor,
+                        font: { size: 14, weight: 'bold' },
+                        padding: { top: 5, bottom: 5 }
+                    };
+                } else {
+                    tempHumidityChart.options.plugins.title = { display: false };
+                }
+                tempHumidityChart.update();
+            }
+            
+            // Update AQI chart
+            if (typeof aqiChart !== 'undefined' && aqiChart) {
+                if (!isOnline) {
+                    aqiChart.options.plugins.title = {
+                        display: true,
+                        text: statusMessage,
+                        color: messageColor,
+                        font: { size: 14, weight: 'bold' },
+                        padding: { top: 5, bottom: 5 }
+                    };
+                } else {
+                    aqiChart.options.plugins.title = { display: false };
+                }
+                aqiChart.update();
+            }
+            
+            console.log('System status updated:', isOnline ? 'Online' : 'Offline');
+        }
+        
+        // Start connection monitoring
+        function startConnectionMonitoring() {
+            connectionCheckInterval = setInterval(checkConnectionStatus, 2000);
+            console.log('Connection monitoring started - will mark offline after 35 seconds of no updates');
+        }
+        
+        // Stop connection monitoring
+        function stopConnectionMonitoring() {
+            if (connectionCheckInterval) {
+                clearInterval(connectionCheckInterval);
+            }
+        }
+        
+        // Initialize Adafruit IO data fetching
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Adafruit IO integration
+            if (typeof initAIOData === 'function') {
+                initAIOData();
+            }
+            
+            // Start connection monitoring
+            startConnectionMonitoring();
+            
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                stopConnectionMonitoring();
+            });
+            
+            // Test if Chart.js is loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded');
+            } else {
+                console.log('Chart.js is loaded');
+            }
+            
+            // Responsive overlay navbar functionality
+            const hamburger = document.getElementById("hamburger");
+            const overlay = document.getElementById("overlay");
+            
+            // Toggle overlay menu
+            function toggleMenu() {
+                hamburger.classList.toggle("active");
+                overlay.classList.toggle("active");
+                // Prevent body scroll when menu is open
+                document.body.style.overflow = overlay.classList.contains("active") ? "hidden" : "";
+            }
+            
+            // Event listeners
+            hamburger.addEventListener("click", toggleMenu);
+            
+            // Close menu when clicking any link
+            document.querySelectorAll(".overlay a").forEach(link => {
+                link.addEventListener("click", () => {
+                    overlay.classList.remove("active");
+                    hamburger.classList.remove("active");
+                });
+            });
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="card-peaceful border-t border-border/50 backdrop-blur-xl mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                        <span class="text-sm font-bold text-primary-foreground">AQ</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-foreground">AirSense Monitor</p>
+                        <p class="text-xs text-muted-foreground">Real-time air quality monitoring</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-4 md:gap-6">
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
+                    <a href="#" class="text-sm text-muted-foreground hover:text-foreground transition-colors">Support</a>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-xs text-muted-foreground">© 2025 AirSense. All rights reserved.</p>
+                    <p class="text-xs text-muted-foreground mt-1">Version 1.0.0</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

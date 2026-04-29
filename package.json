@@ -1,0 +1,13 @@
+{
+  "name": "airsense-dashboard",
+  "version": "1.0.0",
+  "description": "AirSense Air Quality Monitoring Dashboard",
+  "scripts": {
+    "env": "node generate-env.js",
+    "start": "node generate-env.js && echo Dashboard ready! Open index.html in your browser",
+    "build": "node generate-env.js"
+  },
+  "keywords": ["air-quality", "dashboard", "iot"],
+  "author": "",
+  "license": "MIT"
+}

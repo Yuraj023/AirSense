@@ -1,0 +1,20 @@
+# Environment variables
+.env
+.env.example
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+config.env.js
+env-config.js
+.vercel
